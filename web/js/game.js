@@ -312,6 +312,11 @@ function updateScoreDisplay() {
     document.getElementById('score-display').textContent = `Score: ${score}`;
 }
 
+function updatePositionDisplay() {
+    const head = snake.getHead();
+    document.getElementById('position-display').textContent = `Position: (${head.x}, ${head.y})`;
+}
+
 // ===================================================================
 // GAME LOGIC FUNCTIONS
 // ===================================================================
@@ -323,6 +328,7 @@ function updateGame() {
     checkCollisions();
     checkFood();
     render();
+    updatePositionDisplay();
 }
 
 function checkCollisions() {
@@ -359,6 +365,7 @@ function startGame() {
     gameState = GameState.PLAYING;
     
     updateScoreDisplay();
+    updatePositionDisplay();
     
     document.getElementById('pause-overlay').classList.add('hidden');
     document.getElementById('gameover-overlay').classList.add('hidden');

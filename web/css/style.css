@@ -108,13 +108,22 @@ body {
     padding: 10px;
 }
 
-#score-display {
-    font-size: 20px;
+#info-display {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+    margin-bottom: 10px;
+}
+
+#score-display, #position-display {
+    font-size: 18px;
     font-weight: bold;
     color: white;
-    margin-bottom: 10px;
-    align-self: flex-start;
-    margin-left: 10px;
+}
+
+#position-display {
+    color: #00ff00;
 }
 
 #game-canvas {

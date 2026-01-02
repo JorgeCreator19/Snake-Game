@@ -24,8 +24,11 @@
         </div>
 
         <!-- Game Screen -->
-         <div id="game-screen" class="screen hidden">
-            <div id="score-display">Score: 0</div>
+        <div id="game-screen" class="screen hidden">
+            <div id="info-display">
+            <span id="score-display">Score: 0</span>
+            <span id="position-display">Position: (0, 0)</span>
+            </div>
             <canvas id="game-canvas"></canvas>
 
             <!-- Pause Overlay -->
@@ -41,7 +44,7 @@
                 <button id="restart-btn" class="menu-btn">RESTART</button>
                 <button id="menu-btn" class="menu-btn">MENU</button>
             </div>
-         </div>
+        </div>
 
         <!-- SETTINGS SCREEN -->
         <div id="settings-screen" class="screen hidden">
