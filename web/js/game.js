@@ -481,3 +481,120 @@ function showControlsScreen() {
 function showMenuScreen() {
     showScreen('menu-screen');
 }
+
+// ===================================================================
+//                          KEYBOARD INPUT
+//               Same as keyPressed() in GamePanel.java
+// ===================================================================
+
+function handleKeyDown(event) {
+    const key = event.key;
+
+    // Arrow keys and WASD - only when playing
+    if (gameState === GameState.PLAYING) {
+        switch (key) {
+            case 'ArrowUp':
+            case 'w':
+            case 'W':
+                snake.setDirection(Direction.UP);
+                event.preventDefault(); // Prevent page scrolling
+                break;
+                
+            case 'ArrowDown':
+            case 's':
+            case 'S':
+                snake.setDirection(Direction.DOWN);
+                event.preventDefault();
+                break;
+                
+            case 'ArrowLeft':
+            case 'a':
+            case 'A':
+                snake.setDirection(Direction.LEFT);
+                event.preventDefault();
+                break;
+                
+            case 'ArrowRight':
+            case 'd':
+            case 'D':
+                snake.setDirection(Direction.RIGHT);
+                event.preventDefault();
+                break;
+        }
+    }
+
+    // P - Pause toggle (when playing or paused)
+    if (key === 'p' || key === 'P') {
+        if (gameState === GameState.PLAYING || gameState === GameState.PAUSED) {
+            togglePause();
+        }
+    }
+
+    // R - Restart (when game over)
+    if ((key === 'r' || key === 'R') && gameState === GameState.GAME_OVER) {
+        restartGame();
+    }
+
+    // ESC - Back to menu (when playing, paused, or game over)
+    if (key === 'Escape') {
+        if (gameState === GameState.PLAYING || 
+            gameState === GameState.PAUSED || 
+            gameState === GameState.GAME_OVER) {
+            goToMenu();
+        }
+    }
+}
+
+// ===================================================================
+//                            INITIALIZATION
+//                    Same as Main.java - entry point
+// ===================================================================
+
+function init() {
+    // Get canvas and context
+    canvas = document.getElementById('game-canvas');
+    ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+    
+    // Initialize sound manager
+    soundManager = new SoundManager();
+    
+    // Setup settings sliders
+    setupSettings();
+    
+    // Setup button click handlers
+    setupButtons();
+    
+    // Add keyboard listener
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Start at menu
+    gameState = GameState.MENU;
+    showScreen('menu-screen');
+    
+    console.log('Snake Game initialized!');
+}
+
+// Setup all button click handlers
+function setupButtons() {
+    // Menu buttons
+    document.getElementById('play-btn').addEventListener('click', showGameScreen);
+    document.getElementById('settings-btn').addEventListener('click', showSettingsScreen);
+    document.getElementById('controls-btn').addEventListener('click', showControlsScreen);
+    
+    // Settings back button
+    document.getElementById('settings-back-btn').addEventListener('click', showMenuScreen);
+    
+    // Controls back button
+    document.getElementById('controls-back-btn').addEventListener('click', showSettingsScreen);
+    
+    // Game over buttons
+    document.getElementById('restart-btn').addEventListener('click', restartGame);
+    document.getElementById('menu-btn').addEventListener('click', goToMenu);
+}
+
+// Start when page loads
+window.addEventListener('load', init);
