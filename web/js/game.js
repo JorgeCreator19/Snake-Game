@@ -265,3 +265,74 @@ class Food {
         return this.position;
     }
 }
+
+// ===================================================================
+//                              RENDERING FUNCTIONS
+//                   Same as paintComponent() in GamePanel.java
+// ===================================================================
+
+// Draw everything on canvas
+function render() {
+    // Clear canvas
+    ctx.fillStyle = COLORS.background;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // Draw game elements
+    drawGrid();
+    drawFood();
+    drawSnake();
+}
+
+// Draw grid lines
+function drawGrid() {
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1;
+
+     // Vertical lines
+    for (let x = 0; x <= GRID_WIDTH; x++) {
+        ctx.beginPath();
+        ctx.moveTo(x * CELL_SIZE, 0);
+        ctx.lineTo(x * CELL_SIZE, GAME_HEIGHT);
+        ctx.stroke();
+    }
+
+    // Horizontal lines
+    for (let y = 0; y <= GRID_HEIGHT; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * CELL_SIZE);
+        ctx.lineTo(GAME_WIDTH, y * CELL_SIZE);
+        ctx.stroke();
+    }
+}
+
+// Draw snake
+function drawSnake() {
+    snake.body.forEach((segment, index) => {
+        // Head is brighter
+        ctx.fillStyle = index === 0 ? COLORS.snakeHead : COLORS.snakeBody;
+        
+        // Fill cell with small gap for grid lines
+        ctx.fillRect(
+            segment.x * CELL_SIZE + 1,
+            segment.y * CELL_SIZE + 1,
+            CELL_SIZE - 2,
+            CELL_SIZE - 2
+        );
+    });
+}
+
+// Draw food
+function drawFood() {
+    ctx.fillStyle = COLORS.food;
+    ctx.fillRect(
+        food.position.x * CELL_SIZE + 1,
+        food.position.y * CELL_SIZE + 1,
+        CELL_SIZE - 2,
+        CELL_SIZE - 2
+    );
+}
+
+// Update score display
+function updateScoreDisplay() {
+    document.getElementById('score-display').textContent = `Score: ${score}`;
+}
