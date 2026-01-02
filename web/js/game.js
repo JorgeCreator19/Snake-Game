@@ -573,7 +573,7 @@ function setupButtons() {
     document.getElementById('settings-back-btn').addEventListener('click', showMenuScreen);
     
     // Controls back button
-    document.getElementById('controls-back-btn').addEventListener('click', showSettingsScreen);
+    document.getElementById('controls-back-btn').addEventListener('click', showMenuScreen);
     
     // Game over buttons
     document.getElementById('restart-btn').addEventListener('click', restartGame);
