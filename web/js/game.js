@@ -336,3 +336,148 @@ function drawFood() {
 function updateScoreDisplay() {
     document.getElementById('score-display').textContent = `Score: ${score}`;
 }
+
+// ===================================================================
+//                          GAME LOGIC FUNCTIONS
+// Same as updateGame(), checkCollisions(), checkFood() in GamePanel.java
+// ===================================================================
+
+// Main game update (called every GAME_SPEED ms)
+function updateGame() {
+    if (gameState !== GameState.PLAYING) return;
+    
+    // Move snake
+    snake.move();
+    
+    // Check collisions
+    checkCollisions();
+    
+    // Check food
+    checkFood();
+    
+    // Render
+    render();
+}
+
+// Check for collisions
+function checkCollisions() {
+    if (snake.hasCollidedWithWall() || snake.hasCollidedWithSelf()) {
+        gameOver();
+    }
+}
+
+// Check if snake ate food
+function checkFood() {
+    if (snake.isHeadAt(food.getPosition())) {
+        snake.grow();
+        score += 10;
+        updateScoreDisplay();
+        food.respawn(snake);
+        soundManager.playEat();
+    }
+}
+
+// Game over
+function gameOver() {
+    gameState = GameState.GAME_OVER;
+    clearInterval(gameLoop);
+    soundManager.stopBackground();
+    soundManager.playGameOver();
+    
+    // Show game over overlay
+    document.getElementById('final-score').textContent = `Final Score: ${score}`;
+    document.getElementById('gameover-overlay').classList.remove('hidden');
+}
+
+// Start new game
+function startGame() {
+    // Initialize game objects
+    snake = new Snake();
+    food = new Food();
+    food.respawn(snake);
+    score = 0;
+    gameState = GameState.PLAYING;
+    
+    // Update display
+    updateScoreDisplay();
+    
+    // Hide overlays
+    document.getElementById('pause-overlay').classList.add('hidden');
+    document.getElementById('gameover-overlay').classList.add('hidden');
+    
+    // Start game loop
+    clearInterval(gameLoop);
+    gameLoop = setInterval(updateGame, GAME_SPEED);
+    
+    // Start music
+    soundManager.playBackgroundLoop();
+    
+    // Initial render
+    render();
+}
+
+// Pause game
+function togglePause() {
+    if (gameState === GameState.PLAYING) {
+        gameState = GameState.PAUSED;
+        clearInterval(gameLoop);
+        soundManager.pauseBackground();
+        document.getElementById('pause-overlay').classList.remove('hidden');
+    } else if (gameState === GameState.PAUSED) {
+        gameState = GameState.PLAYING;
+        gameLoop = setInterval(updateGame, GAME_SPEED);
+        soundManager.resumeBackground();
+        document.getElementById('pause-overlay').classList.add('hidden');
+    }
+}
+
+// Restart game
+function restartGame() {
+    document.getElementById('gameover-overlay').classList.add('hidden');
+    startGame();
+}
+
+// Go back to menu
+function goToMenu() {
+    gameState = GameState.MENU;
+    clearInterval(gameLoop);
+    soundManager.stopBackground();
+    showScreen('menu-screen');
+}
+
+// ===================================================================
+//                        SCREEN MANAGEMENT
+// Same as GameFrame.java showMenu(), showSettings(), etc.
+// ===================================================================
+
+// Show a specific screen, hide others
+function showScreen(screenId) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.add('hidden');
+    });
+    
+    // Show requested screen
+    document.getElementById(screenId).classList.remove('hidden');
+}
+
+// Show game screen and start
+function showGameScreen() {
+    showScreen('game-screen');
+    startGame();
+}
+
+// Show settings screen
+function showSettingsScreen() {
+    showScreen('settings-screen');
+}
+
+// Show controls screen
+function showControlsScreen() {
+    showScreen('controls-screen');
+}
+
+// Show menu screen
+function showMenuScreen() {
+    showScreen('menu-screen');
+}
