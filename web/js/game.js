@@ -55,7 +55,7 @@ let soundManager;   // Sound manager instance
 
 // ===================================================================
 //                        SOUND MANAGER CLASS
-// Same as SoundManager.java
+//                      Same as SoundManager.java
 // ===================================================================
 class SoundManager {
     constructor() {
@@ -136,3 +136,104 @@ class SoundManager {
         }
     }
 }
+
+// ===================================================================
+//                              SNAKE CLASS
+//                           Same as Snake.java
+// ===================================================================
+class Snake {
+     constructor() {
+        this.body = [];              // Array of {x, y} positions
+        this.direction = Direction.RIGHT;
+        this.nextDirection = Direction.RIGHT;
+        this.shouldGrow = false;
+        
+        this.initializeBody();
+    }
+
+    // Create snake at center of grid
+    initializeBody() {
+        const startX = Math.floor(GRID_WIDTH / 2);
+        const startY = Math.floor(GRID_HEIGHT / 2);
+        
+        // Add segments: head first, then body going LEFT
+        for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
+            this.body.push({ x: startX - i, y: startY });
+        }
+    }
+
+    // Move snake one cell
+    move() {
+        // Apply buffered direction
+        this.direction = this.nextDirection;
+
+        // Get current head
+        const head = this.body[0];
+
+        // Calculate new head position
+        const newHead = {
+            x: head.x + this.direction.dx,
+            y: head.y + this.direction.dy
+        };
+
+        // Add new head at beginning
+        this.body.unshift(newHead);
+
+        // Remove tail (unless growing)
+        if (this.shouldGrow) {
+            this.shouldGrow = false;
+        } else {
+            this.body.pop();
+        }
+    }
+
+    // Set direction (prevent reversing)
+    setDirection(newDirection) {
+        if (!isOpposite(this.direction, newDirection)) {
+            this.nextDirection = newDirection;
+        }
+    }
+
+    // Grow on next move
+    grow() {
+        this.shouldGrow = true;
+    }
+    
+    // Get head position
+    getHead() {
+        return this.body[0];
+    }
+    
+    // Check if head hit wall
+    hasCollidedWithWall() {
+        const head = this.getHead();
+        return head.x < 0 || head.x >= GRID_WIDTH ||
+               head.y < 0 || head.y >= GRID_HEIGHT;
+    }
+
+    // Check if head hit body
+    hasCollidedWithSelf() {
+        const head = this.getHead();
+        
+        // Check against all body segments except head (index 0)
+        for (let i = 1; i < this.body.length; i++) {
+            if (head.x === this.body[i].x && head.y === this.body[i].y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+     // Check if head is at position
+    isHeadAt(position) {
+        const head = this.getHead();
+        return head.x === position.x && head.y === position.y;
+    }
+    
+    // Check if any segment occupies position
+    occupies(position) {
+        return this.body.some(segment => 
+            segment.x === position.x && segment.y === position.y
+        );
+    }
+}   
