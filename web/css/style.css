@@ -1,0 +1,245 @@
+/* ===== RESET & BASE STYLES ===== */
+/* Remove default browser styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body styling */
+body {
+    background-color: #1a1a2e;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: white;
+}
+
+/* ===== GAME CONTAINER ===== */
+#game-container {
+    position: relative;
+    width: 500px;
+    height: 550px;
+    background-color: #16213e;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    overflow: hidden;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Hidden class - used to show/hide screens */
+.hidden {
+    display: none !important;
+}
+
+/* ===== TITLE ===== */
+.title {
+    color: #00ff00;
+    font-size: 48px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+/* ===== MENU BUTTONS ===== */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.menu-btn {
+    background-color: #0f3460;
+    color: white;
+    border: 2px solid #00ff00;
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.menu-btn:hover {
+    background-color: #00ff00;
+    color: #1a1a2e;
+    transform: scale(1.05);
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #0f3460;
+    color: white;
+    border: 2px solid #00ff00;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+    background-color: #00ff00;
+    color: #1a1a2e;
+}
+
+/* ===== GAME SCREEN ===== */
+#game-screen {
+    padding: 10px;
+}
+
+#score-display {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+    align-self: flex-start;
+    margin-left: 10px;
+}
+
+#game-canvas {
+    background-color: #1e1e1e;
+    border: 2px solid #333;
+    border-radius: 5px;
+}
+
+/* ===== OVERLAYS (Pause & Game Over) ===== */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.overlay h2 {
+    font-size: 48px;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.overlay p {
+    font-size: 20px;
+    color: white;
+}
+
+#gameover-overlay h2 {
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+}
+
+/* ===== SETTINGS SCREEN ===== */
+.settings-content {
+    width: 100%;
+    max-width: 350px;
+    margin-top: 20px;
+}
+
+.setting-item {
+    margin-bottom: 25px;
+}
+
+.setting-item label {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #00ff00;
+}
+
+.setting-item input[type="range"] {
+    width: 80%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #0f3460;
+    border-radius: 5px;
+    outline: none;
+}
+
+.setting-item input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #00ff00;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.setting-item input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #00ff00;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.setting-item span {
+    margin-left: 10px;
+    font-size: 16px;
+}
+
+.setting-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* ===== CONTROLS SCREEN ===== */
+.controls-content {
+    width: 100%;
+    max-width: 350px;
+    margin-top: 20px;
+}
+
+.controls-section {
+    margin-bottom: 30px;
+}
+
+.controls-section h3 {
+    color: #00ff00;
+    font-size: 20px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #00ff00;
+    padding-bottom: 5px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 16px;
+}
+
+.control-row span:last-child {
+    color: #00ff00;
+    font-weight: bold;
+}
