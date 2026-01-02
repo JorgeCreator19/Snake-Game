@@ -1,11 +1,13 @@
 // ===================================================================
-//                 SNAKE GAME - JavaScript Version
+// SNAKE GAME - JavaScript Version
 // ===================================================================
 
+console.log('game.js loaded!');
+
 // ===== CONSTANTS =====
-// Same as Constants.java - all game settings in one place+
 const CELL_SIZE = 25;
 const GRID_WIDTH = 20;
+const GRID_HEIGHT = 20;
 const GAME_WIDTH = GRID_WIDTH * CELL_SIZE;   // 500px
 const GAME_HEIGHT = GRID_HEIGHT * CELL_SIZE; // 500px
 const GAME_SPEED = 150; // milliseconds between updates
@@ -21,7 +23,6 @@ const COLORS = {
 };
 
 // ===== DIRECTIONS =====
-// Same as Direction.java enum
 const Direction = {
     UP: { dx: 0, dy: -1 },
     DOWN: { dx: 0, dy: 1 },
@@ -35,7 +36,6 @@ function isOpposite(dir1, dir2) {
 }
 
 // ===== GAME STATES =====
-// Same as GameState.java enum
 const GameState = {
     MENU: 'menu',
     PLAYING: 'playing',
@@ -46,89 +46,97 @@ const GameState = {
 };
 
 // ===== GLOBAL VARIABLES =====
-let canvas, ctx;    // Canvas and context for drawing
-let snake, food;    // Game objects
-let gameState;      // Current state
-let score;          // Player score
-let gameLoop;       // Interval ID for game loop
-let soundManager;   // Sound manager instance
+let canvas, ctx;
+let snake, food;
+let gameState;
+let score;
+let gameLoop;
+let soundManager;
 
 // ===================================================================
-//                        SOUND MANAGER CLASS
-//                      Same as SoundManager.java
+// SOUND MANAGER CLASS
 // ===================================================================
 class SoundManager {
     constructor() {
-        // Create audio elements
-        this.eatSound = new Audio('sounds/eat.wav');
-        this.gameOverSound = new Audio('sounds/gameover.wav');
-        this.backgroundMusic = new Audio('sounds/background.mp3');
-        
-        // Settings
         this.musicVolume = 0.8;
         this.sfxVolume = 0.8;
         this.muted = false;
         
-        // Background music should loop
-        this.backgroundMusic.loop = true;
-    }
-
-    // Play eat sound
-    playEat() {
-        if (!this.muted) {
-            this.eatSound.volume = this.sfxVolume;
-            this.eatSound.currentTime = 0; // Rewind to start
-            this.eatSound.play().catch(e => console.log('Audio play failed:', e))
+        // Try to load sounds (won't crash if files missing)
+        this.eatSound = this.createAudio('sounds/eat.wav');
+        this.gameOverSound = this.createAudio('sounds/gameover.wav');
+        this.backgroundMusic = this.createAudio('sounds/background.mp3');
+        
+        if (this.backgroundMusic) {
+            this.backgroundMusic.loop = true;
         }
     }
-
-    // Play game over sound
+    
+    // Safely create audio element
+    createAudio(src) {
+        try {
+            const audio = new Audio(src);
+            audio.volume = this.sfxVolume;
+            return audio;
+        } catch (e) {
+            console.log('Could not load audio:', src);
+            return null;
+        }
+    }
+    
+    playEat() {
+        if (!this.muted && this.eatSound) {
+            this.eatSound.volume = this.sfxVolume;
+            this.eatSound.currentTime = 0;
+            this.eatSound.play().catch(e => {});
+        }
+    }
+    
     playGameOver() {
-        if (!this.muted) {
+        if (!this.muted && this.gameOverSound) {
             this.gameOverSound.volume = this.sfxVolume;
             this.gameOverSound.currentTime = 0;
-            this.gameOverSound.play().catch(e => console.log('Audio play failed:', e))
+            this.gameOverSound.play().catch(e => {});
         }
     }
-
-    // Start background music
+    
     playBackgroundLoop() {
-        if (!this.muted) {
+        if (!this.muted && this.backgroundMusic) {
             this.backgroundMusic.volume = this.musicVolume;
-            this.backgroundMusic.play().catch(e => console.log('Audio play failed:', e));
+            this.backgroundMusic.play().catch(e => {});
         }
     }
-
-    // Stop background music
+    
     stopBackground() {
-        this.backgroundMusic.pause();
-        this.backgroundMusic.currentTime = 0;
-    }
-
-    // Pause background music (without rewinding)
-    pauseBackground() {
-        this.backgroundMusic.pause();
-    }
-
-    // Resume background music
-    resumeBackground() {
-        if (!this.muted) {
-            this.backgroundMusic.play().catch(e => console.log('Audio play failed:', e))
+        if (this.backgroundMusic) {
+            this.backgroundMusic.pause();
+            this.backgroundMusic.currentTime = 0;
         }
     }
-
-    // Set music volume (0.0 to 1.0)
+    
+    pauseBackground() {
+        if (this.backgroundMusic) {
+            this.backgroundMusic.pause();
+        }
+    }
+    
+    resumeBackground() {
+        if (!this.muted && this.backgroundMusic) {
+            this.backgroundMusic.play().catch(e => {});
+        }
+    }
+    
     setMusicVolume(volume) {
         this.musicVolume = Math.max(0, Math.min(1, volume));
-        this.backgroundMusic.volume = this.musicVolume;
+        if (this.backgroundMusic) {
+            this.backgroundMusic.volume = this.musicVolume;
+        }
     }
-
-    // Set music volume (0.0 to 1.0)
+    
     setSfxVolume(volume) {
         this.sfxVolume = Math.max(0, Math.min(1, volume));
     }
-
-    // Set muted state
+    
     setMuted(muted) {
         this.muted = muted;
         if (muted) {
@@ -138,84 +146,68 @@ class SoundManager {
 }
 
 // ===================================================================
-//                              SNAKE CLASS
-//                           Same as Snake.java
+// SNAKE CLASS
 // ===================================================================
 class Snake {
-     constructor() {
-        this.body = [];              // Array of {x, y} positions
+    constructor() {
+        this.body = [];
         this.direction = Direction.RIGHT;
         this.nextDirection = Direction.RIGHT;
         this.shouldGrow = false;
         
         this.initializeBody();
     }
-
-    // Create snake at center of grid
+    
     initializeBody() {
         const startX = Math.floor(GRID_WIDTH / 2);
         const startY = Math.floor(GRID_HEIGHT / 2);
         
-        // Add segments: head first, then body going LEFT
         for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
             this.body.push({ x: startX - i, y: startY });
         }
     }
-
-    // Move snake one cell
+    
     move() {
-        // Apply buffered direction
         this.direction = this.nextDirection;
-
-        // Get current head
+        
         const head = this.body[0];
-
-        // Calculate new head position
         const newHead = {
             x: head.x + this.direction.dx,
             y: head.y + this.direction.dy
         };
-
-        // Add new head at beginning
+        
         this.body.unshift(newHead);
-
-        // Remove tail (unless growing)
+        
         if (this.shouldGrow) {
             this.shouldGrow = false;
         } else {
             this.body.pop();
         }
     }
-
-    // Set direction (prevent reversing)
+    
     setDirection(newDirection) {
         if (!isOpposite(this.direction, newDirection)) {
             this.nextDirection = newDirection;
         }
     }
-
-    // Grow on next move
+    
     grow() {
         this.shouldGrow = true;
     }
     
-    // Get head position
     getHead() {
         return this.body[0];
     }
     
-    // Check if head hit wall
     hasCollidedWithWall() {
         const head = this.getHead();
         return head.x < 0 || head.x >= GRID_WIDTH ||
                head.y < 0 || head.y >= GRID_HEIGHT;
     }
-
-    // Check if head hit body
+    
     hasCollidedWithSelf() {
         const head = this.getHead();
         
-        // Check against all body segments except head (index 0)
         for (let i = 1; i < this.body.length; i++) {
             if (head.x === this.body[i].x && head.y === this.body[i].y) {
                 return true;
@@ -223,14 +215,12 @@ class Snake {
         }
         return false;
     }
-
-     // Check if head is at position
+    
     isHeadAt(position) {
         const head = this.getHead();
         return head.x === position.x && head.y === position.y;
     }
     
-    // Check if any segment occupies position
     occupies(position) {
         return this.body.some(segment => 
             segment.x === position.x && segment.y === position.y
@@ -239,64 +229,54 @@ class Snake {
 }
 
 // ===================================================================
-//                              FOOD CLASS
-//                          Same as Food.java
+// FOOD CLASS
 // ===================================================================
 class Food {
     constructor() {
         this.position = { x: 0, y: 0 };
         this.spawnRandom();
     }
-
-    // Spawn at random position
+    
     spawnRandom() {
         this.position.x = Math.floor(Math.random() * GRID_WIDTH);
         this.position.y = Math.floor(Math.random() * GRID_HEIGHT);
     }
-
-    // Spawn avoiding snake
+    
     respawn(snake) {
         do {
             this.spawnRandom();
         } while (snake.occupies(this.position));
     }
-
+    
     getPosition() {
         return this.position;
     }
 }
 
 // ===================================================================
-//                              RENDERING FUNCTIONS
-//                   Same as paintComponent() in GamePanel.java
+// RENDERING FUNCTIONS
 // ===================================================================
 
-// Draw everything on canvas
 function render() {
-    // Clear canvas
     ctx.fillStyle = COLORS.background;
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-    // Draw game elements
+    
     drawGrid();
     drawFood();
     drawSnake();
 }
 
-// Draw grid lines
 function drawGrid() {
     ctx.strokeStyle = COLORS.grid;
     ctx.lineWidth = 1;
-
-     // Vertical lines
+    
     for (let x = 0; x <= GRID_WIDTH; x++) {
         ctx.beginPath();
         ctx.moveTo(x * CELL_SIZE, 0);
         ctx.lineTo(x * CELL_SIZE, GAME_HEIGHT);
         ctx.stroke();
     }
-
-    // Horizontal lines
+    
     for (let y = 0; y <= GRID_HEIGHT; y++) {
         ctx.beginPath();
         ctx.moveTo(0, y * CELL_SIZE);
@@ -305,13 +285,10 @@ function drawGrid() {
     }
 }
 
-// Draw snake
 function drawSnake() {
     snake.body.forEach((segment, index) => {
-        // Head is brighter
         ctx.fillStyle = index === 0 ? COLORS.snakeHead : COLORS.snakeBody;
         
-        // Fill cell with small gap for grid lines
         ctx.fillRect(
             segment.x * CELL_SIZE + 1,
             segment.y * CELL_SIZE + 1,
@@ -321,7 +298,6 @@ function drawSnake() {
     });
 }
 
-// Draw food
 function drawFood() {
     ctx.fillStyle = COLORS.food;
     ctx.fillRect(
@@ -332,41 +308,29 @@ function drawFood() {
     );
 }
 
-// Update score display
 function updateScoreDisplay() {
     document.getElementById('score-display').textContent = `Score: ${score}`;
 }
 
 // ===================================================================
-//                          GAME LOGIC FUNCTIONS
-// Same as updateGame(), checkCollisions(), checkFood() in GamePanel.java
+// GAME LOGIC FUNCTIONS
 // ===================================================================
 
-// Main game update (called every GAME_SPEED ms)
 function updateGame() {
     if (gameState !== GameState.PLAYING) return;
     
-    // Move snake
     snake.move();
-    
-    // Check collisions
     checkCollisions();
-    
-    // Check food
     checkFood();
-    
-    // Render
     render();
 }
 
-// Check for collisions
 function checkCollisions() {
     if (snake.hasCollidedWithWall() || snake.hasCollidedWithSelf()) {
         gameOver();
     }
 }
 
-// Check if snake ate food
 function checkFood() {
     if (snake.isHeadAt(food.getPosition())) {
         snake.grow();
@@ -377,46 +341,36 @@ function checkFood() {
     }
 }
 
-// Game over
 function gameOver() {
     gameState = GameState.GAME_OVER;
     clearInterval(gameLoop);
     soundManager.stopBackground();
     soundManager.playGameOver();
     
-    // Show game over overlay
     document.getElementById('final-score').textContent = `Final Score: ${score}`;
     document.getElementById('gameover-overlay').classList.remove('hidden');
 }
 
-// Start new game
 function startGame() {
-    // Initialize game objects
     snake = new Snake();
     food = new Food();
     food.respawn(snake);
     score = 0;
     gameState = GameState.PLAYING;
     
-    // Update display
     updateScoreDisplay();
     
-    // Hide overlays
     document.getElementById('pause-overlay').classList.add('hidden');
     document.getElementById('gameover-overlay').classList.add('hidden');
     
-    // Start game loop
     clearInterval(gameLoop);
     gameLoop = setInterval(updateGame, GAME_SPEED);
     
-    // Start music
     soundManager.playBackgroundLoop();
     
-    // Initial render
     render();
 }
 
-// Pause game
 function togglePause() {
     if (gameState === GameState.PLAYING) {
         gameState = GameState.PAUSED;
@@ -431,13 +385,11 @@ function togglePause() {
     }
 }
 
-// Restart game
 function restartGame() {
     document.getElementById('gameover-overlay').classList.add('hidden');
     startGame();
 }
 
-// Go back to menu
 function goToMenu() {
     gameState = GameState.MENU;
     clearInterval(gameLoop);
@@ -446,58 +398,48 @@ function goToMenu() {
 }
 
 // ===================================================================
-//                        SCREEN MANAGEMENT
-// Same as GameFrame.java showMenu(), showSettings(), etc.
+// SCREEN MANAGEMENT
 // ===================================================================
 
-// Show a specific screen, hide others
 function showScreen(screenId) {
-    // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.add('hidden');
     });
     
-    // Show requested screen
     document.getElementById(screenId).classList.remove('hidden');
 }
 
-// Show game screen and start
 function showGameScreen() {
     showScreen('game-screen');
     startGame();
 }
 
-// Show settings screen
 function showSettingsScreen() {
     showScreen('settings-screen');
 }
 
-// Show controls screen
 function showControlsScreen() {
     showScreen('controls-screen');
 }
 
-// Show menu screen
 function showMenuScreen() {
     showScreen('menu-screen');
 }
 
 // ===================================================================
-//                          KEYBOARD INPUT
-//               Same as keyPressed() in GamePanel.java
+// KEYBOARD INPUT
 // ===================================================================
 
 function handleKeyDown(event) {
     const key = event.key;
-
-    // Arrow keys and WASD - only when playing
+    
     if (gameState === GameState.PLAYING) {
         switch (key) {
             case 'ArrowUp':
             case 'w':
             case 'W':
                 snake.setDirection(Direction.UP);
-                event.preventDefault(); // Prevent page scrolling
+                event.preventDefault();
                 break;
                 
             case 'ArrowDown':
@@ -522,20 +464,17 @@ function handleKeyDown(event) {
                 break;
         }
     }
-
-    // P - Pause toggle (when playing or paused)
+    
     if (key === 'p' || key === 'P') {
         if (gameState === GameState.PLAYING || gameState === GameState.PAUSED) {
             togglePause();
         }
     }
-
-    // R - Restart (when game over)
+    
     if ((key === 'r' || key === 'R') && gameState === GameState.GAME_OVER) {
         restartGame();
     }
-
-    // ESC - Back to menu (when playing, paused, or game over)
+    
     if (key === 'Escape') {
         if (gameState === GameState.PLAYING || 
             gameState === GameState.PAUSED || 
@@ -546,18 +485,57 @@ function handleKeyDown(event) {
 }
 
 // ===================================================================
-//                            INITIALIZATION
-//                    Same as Main.java - entry point
+// SETTINGS FUNCTIONS
+// ===================================================================
+
+function setupSettings() {
+    const musicSlider = document.getElementById('music-volume');
+    const musicValue = document.getElementById('music-value');
+    
+    musicSlider.addEventListener('input', () => {
+        const volume = musicSlider.value / 100;
+        soundManager.setMusicVolume(volume);
+        musicValue.textContent = `${musicSlider.value}%`;
+    });
+    
+    const sfxSlider = document.getElementById('sfx-volume');
+    const sfxValue = document.getElementById('sfx-value');
+    
+    sfxSlider.addEventListener('input', () => {
+        const volume = sfxSlider.value / 100;
+        soundManager.setSfxVolume(volume);
+        sfxValue.textContent = `${sfxSlider.value}%`;
+    });
+    
+    const muteCheckbox = document.getElementById('mute-checkbox');
+    
+    muteCheckbox.addEventListener('change', () => {
+        soundManager.setMuted(muteCheckbox.checked);
+    });
+}
+
+// ===================================================================
+// INITIALIZATION
 // ===================================================================
 
 function init() {
+    console.log('init() called');
+    
     // Get canvas and context
     canvas = document.getElementById('game-canvas');
+    
+    if (!canvas) {
+        console.error('Canvas not found!');
+        return;
+    }
+    
     ctx = canvas.getContext('2d');
     
     // Set canvas size
     canvas.width = GAME_WIDTH;
     canvas.height = GAME_HEIGHT;
+    
+    console.log('Canvas size:', canvas.width, 'x', canvas.height);
     
     // Initialize sound manager
     soundManager = new SoundManager();
@@ -578,7 +556,6 @@ function init() {
     console.log('Snake Game initialized!');
 }
 
-// Setup all button click handlers
 function setupButtons() {
     // Menu buttons
     document.getElementById('play-btn').addEventListener('click', showGameScreen);
