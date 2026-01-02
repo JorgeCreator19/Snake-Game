@@ -236,4 +236,32 @@ class Snake {
             segment.x === position.x && segment.y === position.y
         );
     }
-}   
+}
+
+// ===================================================================
+//                              FOOD CLASS
+//                          Same as Food.java
+// ===================================================================
+class Food {
+    constructor() {
+        this.position = { x: 0, y: 0 };
+        this.spawnRandom();
+    }
+
+    // Spawn at random position
+    spawnRandom() {
+        this.position.x = Math.floor(Math.random() * GRID_WIDTH);
+        this.position.y = Math.floor(Math.random() * GRID_HEIGHT);
+    }
+
+    // Spawn avoiding snake
+    respawn(snake) {
+        do {
+            this.spawnRandom();
+        } while (snake.occupies(this.position));
+    }
+
+    getPosition() {
+        return this.position;
+    }
+}
