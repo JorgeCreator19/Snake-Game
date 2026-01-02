@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <!-- Favicon - the icon in browser tab -->
+    <link rel="icon" href="images/icon.png" type="image/png">
+    <!-- Link the css style file -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Main game container -->
+    <div id="game-container">
+
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="screen">
+            <h1 class="title">SNAKE GAME</h1>
+            <div class="menu-buttons">
+                <button id="play-btn" class="menu-btn">PLAY</button>
+                <button id="settings-btn" class="menu-btn">SETTINGS</button>
+                <button id="controls-btn" class="menu-btn">CONTROLS</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+         <div id="game-screen" class="screen hidden">
+            <div id="score-display">Score: 0</div>
+            <canvas id="game-canvas"></canvas>
+
+            <!-- Pause Overlay -->
+            <div id="pause-overlay" class="overlay hidden">
+                <h2>PAUSED</h2>
+                <p>Press P to continue</p>
+            </div>
+
+            <!-- Game Over Overlay -->
+            <div id="gameover-overlay" class="overlay hidden">
+                <h2>GAME OVER</h2>
+                <p id="final-score">Final Score: 0</p>
+                <button id="restart-btn" class="menu-btn">RESTART</button>
+                <button id="menu-btn" class="menu-btn">MENU</button>
+            </div>
+         </div>
+
+        <!-- SETTINGS SCREEN -->
+        <div id="settings-screen" class="screen hidden">
+            <h1 class="title">SETTINGS</h1>
+            <button id="settings-back-btn" class="back-btn">BACK</button>
+            
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label>Music Volume</label>
+                    <input type="range" id="music-volume" min="0" max="100" value="80">
+                    <span id="music-value">80%</span>
+                </div>
+                
+                <div class="setting-item">
+                    <label>SFX Volume</label>
+                    <input type="range" id="sfx-volume" min="0" max="100" value="80">
+                    <span id="sfx-value">80%</span>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="mute-checkbox">
+                        Mute All Sounds
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROLS SCREEN -->
+        <div id="controls-screen" class="screen hidden">
+            <h1 class="title">CONTROLS</h1>
+            <button id="controls-back-btn" class="back-btn">BACK</button>
+            
+            <div class="controls-content">
+                <div class="controls-section">
+                    <h3>MOVEMENT</h3>
+                    <div class="control-row">
+                        <span>Move Up:</span>
+                        <span>W or ↑</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Move Down:</span>
+                        <span>S or ↓</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Move Left:</span>
+                        <span>A or ←</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Move Right:</span>
+                        <span>D or →</span>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <h3>GAME</h3>
+                    <div class="control-row">
+                        <span>Pause:</span>
+                        <span>P</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Restart:</span>
+                        <span>R</span>
+                    </div>
+                    <div class="control-row">
+                        <span>Back to Menu:</span>
+                        <span>ESC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to JavaScript file (at the end so HTML loads first) -->
+    <script src="js/game.js"></script>
+</body>
+</html>
